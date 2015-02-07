@@ -83,5 +83,10 @@ void MyCircles::setOpen(float t,int rad)
     timeOpen  = t + amountTimeClosed;
     curRadius = rad;
     isClose   = false;
-    
+}
+void MyCircles::setClose()
+{
+    curRadius = radius;
+    isClose = true;
+
 }

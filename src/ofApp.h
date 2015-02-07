@@ -30,6 +30,7 @@ class ofApp : public ofBaseApp{
     float time_open;
     vector<MyCircles> circles;
     vector<int> closed_index;
+    bool openTime;
     
     // fish elements
     int num_fish;
@@ -40,9 +41,13 @@ class ofApp : public ofBaseApp{
     float curTimer;
     
     vector<ofVec2f> grid_pos;
-     vector<int> init_pos;
+    vector<int> init_pos;
     vector<int> wayPoints;
     bool isRandom;
     bool isHeart;
     bool isNumasbala;
+    
+    //image saver
+    ofImage grabbed;
+    bool startRecording;
 };

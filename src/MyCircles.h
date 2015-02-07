@@ -35,7 +35,7 @@ public:
     MyCircles(ofVec3f pos_, ofVec3f color_, int r, float timer, int initFrame_);
     void updateStatus();
     void setOpen(float t,int rad);
-    
+    void setClose();
     void updateFish(ofVec2f point, float amplitude, float period, float speed);
     
     

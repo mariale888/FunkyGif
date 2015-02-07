@@ -8,9 +8,9 @@ void ofApp::setup(){
     ofEnableSmoothing();
     
     radius      = 35;
-    num_circles = 200;
+    num_circles = 204;
     num_per_row = 17;
-    time_open   = 220;
+    time_open   = 0.5;
     
     int j = -1;
     for (int i = 0;i< num_circles;i++)
@@ -27,11 +27,13 @@ void ofApp::setup(){
     }
     
    
-    
+    grabbed.allocate(ofGetWidth(), ofGetHeight(), OF_IMAGE_COLOR_ALPHA);
+    startRecording = false;
     isRandom    = false;
     isHeart     = true;
     isNumasbala = false;
-   
+    openTime = false;
+    
     //heart shape
     if(isHeart)
     {
@@ -65,7 +67,7 @@ void ofApp::setup(){
         wayPoints.push_back( calcPos(0,8));
         wayPoints.push_back( calcPos(2,10));
         wayPoints.push_back( calcPos(2,9));
-         wayPoints.push_back( calcPos(3,8));
+        wayPoints.push_back( calcPos(3,8));
         wayPoints.push_back( calcPos(5,8));
         wayPoints.push_back( calcPos(5,13));
         wayPoints.push_back( calcPos(6,13));
@@ -77,12 +79,17 @@ void ofApp::setup(){
         
         for (int i = 0; i < (sizeof(t) / sizeof(int)); ++i) init_pos.push_back(t[i]);
     }
+    int row = 1;
+    float extraTime = 0;
+    for(vector<int>::iterator it = init_pos.begin(); it != init_pos.end();++it){
+        if(*it / num_per_row > row){
+            row++;
+            extraTime += 0.0;
+        }
+        circles[*it].setOpen(ofGetElapsedTimef() + extraTime, 0);
+    }
     
-    for(vector<int>::iterator it = init_pos.begin(); it != init_pos.end();++it)
-        circles[*it].setOpen(ofGetElapsedTimef(), 0);
-    
-   
-    
+
     // init fish
     num_fish = 200;
     int counter = 0;
@@ -131,17 +138,93 @@ void ofApp::update(){
     }
 
     //update circles that are closing
-   
     for (vector<MyCircles>::iterator it = circles.begin() ; it != circles.end(); ++it)
-    {
         it->updateStatus();
+    
+    
+    if(ofGetFrameNum()%10 == 0)
+        startRecording = !startRecording;
+    if(ofGetFrameNum()%5 == 0)
+        openTime = !openTime;
+    
+    
+    if(ofGetFrameNum()%2 == 0) {
+        if(isHeart || isNumasbala)
+        {
+            int row = 0;
+            int add = 0;
+            float extraTime = 0;
+            for(vector<int>::iterator it = init_pos.begin(); it != init_pos.end();++it){
+               
+                if(openTime)
+                {
+                    if(!circles[*it].isClose){
+                        if(*it / num_per_row >row)
+                            row++;
+                        continue;
+                    }
+                    if(*it / num_per_row > row && add > 4)break;
+                    if(*it / num_per_row > row){
+                        add ++;
+                        row++;
+                    }
+                    
+                    circles[*it].setOpen(ofGetElapsedTimef() + time_open, 0);
+                }
+                else{
+                    
+                    if(circles[*it].isClose){
+                        if(*it / num_per_row >row)
+                            row++;
+                        continue;
+                    }
+                    if(*it / num_per_row > row && add > 4)break;
+                    if(*it / num_per_row > row){
+                        add ++;
+                        row++;
+                    }
+                    
+                    circles[*it].setClose();
+                }
+            }
+        }
+            /*
+             
+             
+             if(isHeart || isNumasbala)
+             {
+             
+             int row = 0;
+             int add = 0;
+             float extraTime = 0;
+             for(vector<int>::iterator it = init_pos.begin(); it != init_pos.end();++it){
+             if(!circles[*it].isClose){
+             if(*it / num_per_row >row)
+             row++;
+             }
+             else
+             {
+             if(!openTime )
+             continue;
+             if(*it / num_per_row > row && add > 3)break;
+             if(*it / num_per_row > row){
+             add ++;
+             row++;
+             }
+             
+             circles[*it].setOpen(ofGetElapsedTimef() + time_open, 0);
+             }
+             }
+             if(openTime && row == 10)
+             openTime = false;
+             else if(!openTime && row == 0)
+             openTime = true;
+             }*/
     }
-    
-    
-    // Add open closed circles randomly
-    if(isRandom)
-    {
-        if(ofGetFrameNum()%2 == 0) {
+     if(ofGetFrameNum()%2 == 0) {
+        // Add open closed circles randomly
+        if(isRandom)
+        {
            int r = ofRandom(0, num_circles);
            if(circles[r].isClose)
             {
@@ -174,6 +257,11 @@ void ofApp::draw(){
         ofCircle(temp.pos.x, temp.pos.y, temp.pos.z, temp.curRadius);
     }
    
+    grabbed.grabScreen(0, 0, ofGetWidth(), ofGetHeight());
+  
+    string name ="img_" + ofToString(ofGetFrameNum()) + ".jpg";
+    if(startRecording)
+        grabbed.saveImage(name);
 }
 
 //--------------------------------------------------------------
@@ -198,6 +286,8 @@ void ofApp::addFish(ofVec2f pos, ofVec3f color) {
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
 
+    if(key == 'g')
+        startRecording = !startRecording;
 }
 
 //--------------------------------------------------------------
