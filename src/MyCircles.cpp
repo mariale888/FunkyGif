@@ -46,7 +46,7 @@ void MyCircles::updateStatus()
 void MyCircles::updateFish(ofVec2f point, float amplitude, float period, float speed)
 {
     // moving up
-    if(direction == 0)
+    if(direction == 0 )
     {
         pos.y -= speed;
         //reset x pos if out of screen
@@ -56,13 +56,23 @@ void MyCircles::updateFish(ofVec2f point, float amplitude, float period, float s
 
     }
     // moving right
-    else if(direction == 1) {
+    else if(direction == 1 ) {
         pos.x += speed;
         // reset x pos if out of screen
         if(pos.x > ofGetWidth())
             pos.x = -10;
         pos.y += amplitude * cos(TWO_PI * (initFrame - ofGetFrameNum() )/period) ;
     }
+    
+    // moving right
+    else if(direction == 4 ) {
+        pos.x += speed;
+        // reset x pos if out of screen
+        if(pos.x > ofGetWidth() - ofGetWidth() * 0.2)
+            pos.x = ofGetWidth() * 0.4;
+        pos.y += amplitude * cos(TWO_PI * (initFrame - ofGetFrameNum() )/period) ;
+    }
+    
     // wayPoints
     if(direction == 3){
         pos.x -= amplitude * cos(TWO_PI * (initFrame - ofGetFrameNum() )/period) ;

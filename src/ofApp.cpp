@@ -21,17 +21,15 @@ void ofApp::setup(){
             j++;
         
         float y = (radius) + (j * radius*1.8) -5;
-       if(i%3 == 0)
-           grid_pos.push_back(ofVec2f(x,y));
-        circles.push_back(MyCircles(ofVec3f(x, y, 0), ofVec3f(52,56,56), radius, time_open, ofGetFrameNum()));
+        circles.push_back(MyCircles(ofVec3f(x, y, 0), ofVec3f(238,232,222), radius, time_open, ofGetFrameNum())); //ofVec3f(52,56,56)
     }
     
    
     grabbed.allocate(ofGetWidth(), ofGetHeight(), OF_IMAGE_COLOR_ALPHA);
     startRecording = false;
     isRandom    = false;
-    isHeart     = true;
-    isNumasbala = false;
+    isHeart     = false;
+    isNumasbala = true;
     openTime = false;
     
     //heart shape
@@ -41,18 +39,9 @@ void ofApp::setup(){
         calcPos(3,2),calcPos(3,7),calcPos(3,9),calcPos(3,14), calcPos(4,2), calcPos(4,8),calcPos(4,14),calcPos(5,3),calcPos(5,13),calcPos(6,4),
         calcPos(6,12),calcPos(7,5),calcPos(7,11), calcPos(8,6), calcPos(8,10), calcPos(9,7), calcPos(9,9),calcPos(10,8) };
         
-        wayPoints.push_back( calcPos(0,4));
-        wayPoints.push_back( calcPos(2,6));
-        wayPoints.push_back( calcPos(4,8));
-        wayPoints.push_back( calcPos(2,10));
-        wayPoints.push_back( calcPos(0,12));
-        wayPoints.push_back( calcPos(2,14));
-        wayPoints.push_back( calcPos(4,14));
-        wayPoints.push_back( calcPos(7,11));
-        wayPoints.push_back( calcPos(10,8));
-        wayPoints.push_back( calcPos(7,5));
-        wayPoints.push_back( calcPos(4,2));
-        wayPoints.push_back( calcPos(2,2));
+        wayPoints.push_back( calcPos(0,4)); wayPoints.push_back( calcPos(2,6));wayPoints.push_back( calcPos(4,8));wayPoints.push_back( calcPos(2,10));
+        wayPoints.push_back( calcPos(0,12)); wayPoints.push_back( calcPos(2,14));wayPoints.push_back( calcPos(4,14));wayPoints.push_back( calcPos(7,11));
+        wayPoints.push_back( calcPos(10,8)); wayPoints.push_back( calcPos(7,5));wayPoints.push_back( calcPos(4,2));wayPoints.push_back( calcPos(2,2));
         for (int i = 0; i < (sizeof(t) / sizeof(int)); ++i) init_pos.push_back(t[i]);
     }
     
@@ -64,18 +53,9 @@ void ofApp::setup(){
             calcPos(6,3),calcPos(6,13),calcPos(7,4), calcPos(7,12), calcPos(8,5), calcPos(8,11), calcPos(9,6),calcPos(9,10),calcPos(10,7),
             calcPos(10,8),calcPos(10,9) };
         
-        wayPoints.push_back( calcPos(0,8));
-        wayPoints.push_back( calcPos(2,10));
-        wayPoints.push_back( calcPos(2,9));
-        wayPoints.push_back( calcPos(3,8));
-        wayPoints.push_back( calcPos(5,8));
-        wayPoints.push_back( calcPos(5,13));
-        wayPoints.push_back( calcPos(6,13));
-        wayPoints.push_back( calcPos(10,9));
-        wayPoints.push_back( calcPos(10,7));
-        wayPoints.push_back( calcPos(6,3));
-        wayPoints.push_back( calcPos(5,3));
-        wayPoints.push_back( calcPos(5,8));
+        wayPoints.push_back( calcPos(0,8)); wayPoints.push_back( calcPos(2,10)); wayPoints.push_back( calcPos(2,9));wayPoints.push_back( calcPos(3,8));
+        wayPoints.push_back( calcPos(5,8));wayPoints.push_back( calcPos(5,13)); wayPoints.push_back( calcPos(6,13));wayPoints.push_back( calcPos(10,9));
+        wayPoints.push_back( calcPos(10,7));wayPoints.push_back( calcPos(6,3)); wayPoints.push_back( calcPos(5,3));wayPoints.push_back( calcPos(5,8));
         
         for (int i = 0; i < (sizeof(t) / sizeof(int)); ++i) init_pos.push_back(t[i]);
     }
@@ -91,40 +71,48 @@ void ofApp::setup(){
     
 
     // init fish
-    num_fish = 200;
-    int counter = 0;
-    for (vector<ofVec2f>::iterator it = grid_pos.begin(); it != grid_pos.end(); ++it)
-    {
-        addFish(*it, ofVec3f(0,223,252));
-        counter++;
-        if(counter > 2)break;
+    num_fish = 2000;
+    for(int i = 0;i<100;i++){
+       
+        int r = ofRandom(calcPos(8,0), circles.size()-2);
+        addFish(circles[r].pos, ofVec3f(0,223,252),1);
+           }
+    for(int i = 0;i<200;i++){
+        
+       int r = ofRandom(calcPos(0,7), calcPos(2,12));
+        addFish(circles[r].pos, ofVec3f(16,16,15),4);
     }
-    
-    timer = 1;
-    curTimer = ofGetElapsedTimef();
+    addFish(circles[calcPos(0,8)].pos, ofVec3f(16,16,15),3);
 }
 
 int ofApp::calcPos(int x, int y)
 {
     return (num_per_row * x) + y;
 }
+
+
 //--------------------------------------------------------------
 void ofApp::update(){
     
     float period    = 10;
     float amplitude = 10;
-    float speed     = 8;
+    float speed     = 10;
     
-    if(timer%3 == 0 && fish.size() < num_fish){
-        int r = ofRandom(0, grid_pos.size());
-        addFish(grid_pos[r], ofVec3f(0,223,252));
+    if(ofGetFrameNum()%2 == 0 && fish.size() < num_fish){
+        int r = ofRandom(calcPos(8,0), circles.size()-2);
+        addFish(circles[r].pos, ofVec3f(0,223,252),1);
+        
+        r = ofRandom(calcPos(0,7), calcPos(2,12));
+        addFish(circles[r].pos, ofVec3f(16,16,15),4);
+        
+        addFish(circles[calcPos(0,8)].pos, ofVec3f(16,16,15),3);
+
     }
     
-    timer++;
     for (int i = 0;i< fish.size();i++)
     {
         ofVec2f p = ofVec2f();
-        if(isHeart || isNumasbala){
+        if(fish[i].direction == 3){
             speed = ofRandom(4, 14);
             p = circles[wayPoints[fish[i].curPoint]].pos;
             if(fish[i].arrived)
@@ -142,8 +130,8 @@ void ofApp::update(){
         it->updateStatus();
     
     
-    if(ofGetFrameNum()%10 == 0)
-        startRecording = !startRecording;
+   // if(ofGetFrameNum()%10 == 0)
+     //   startRecording = !startRecording;
     if(ofGetFrameNum()%5 == 0)
         openTime = !openTime;
     
@@ -188,40 +176,7 @@ void ofApp::update(){
                 }
             }
         }
-            /*
-             
-             
-             if(isHeart || isNumasbala)
-             {
-             
-             int row = 0;
-             int add = 0;
-             float extraTime = 0;
-             for(vector<int>::iterator it = init_pos.begin(); it != init_pos.end();++it){
-             if(!circles[*it].isClose){
-             if(*it / num_per_row >row)
-             row++;
-             }
-             else
-             {
-             if(!openTime )
-             continue;
-             if(*it / num_per_row > row && add > 3)break;
-             if(*it / num_per_row > row){
-             add ++;
-             row++;
-             }
-             
-             circles[*it].setOpen(ofGetElapsedTimef() + time_open, 0);
-             }
-             }
-             if(openTime && row == 10)
-             openTime = false;
-             else if(!openTime && row == 0)
-             openTime = true;
-             }*/
-    }
-     if(ofGetFrameNum()%2 == 0) {
+
         // Add open closed circles randomly
         if(isRandom)
         {
@@ -237,16 +192,18 @@ void ofApp::update(){
 
 //--------------------------------------------------------------
 void ofApp::draw(){
-    ofBackground(0,140,158);
-    
+    ofBackground(73,72,104);
     // drawing all my fish
+    
     for(int i = 0; i < fish.size();i++) {
         MyCircles temp = fish[i];
-        ofSetColor(temp.color.x,temp.color.y,temp.color.z);
-        ofFill();
-        ofCircle(temp.pos.x, temp.pos.y, temp.pos.z, temp.curRadius);
+        if(temp.direction == 3 || (temp.direction == 1 && !circles[calcPos(10, 8)].isClose) ||
+           (temp.direction == 4 && !circles[calcPos(0, 8)].isClose) ){
+            ofSetColor(temp.color.x,temp.color.y,temp.color.z);
+            ofFill();
+            ofCircle(temp.pos.x, temp.pos.y, temp.pos.z, temp.curRadius);
+        }
     }
-   
     //for(int i = 12;i<18;i++)
     //circles[i].radius = 1;
     // drawing all my circles
@@ -265,21 +222,15 @@ void ofApp::draw(){
 }
 
 //--------------------------------------------------------------
-void ofApp::addFish(ofVec2f pos, ofVec3f color) {
+void ofApp::addFish(ofVec2f pos, ofVec3f color, int dir) {
 
     MyCircles newFish =  MyCircles(ofVec3f(pos.x, pos.y, 0), color, ofRandom(3, 12), time_open, ofGetFrameNum()) ;
-   
-    if(isHeart || isNumasbala){
-        newFish.direction = 3;
-        newFish.color = ofVec3f(ofRandom(0,255),ofRandom(0,255),ofRandom(0,255));
+    newFish.direction = dir;
+    if(newFish.direction == 3){
+       
         newFish.pos = circles[wayPoints[0]].pos;
     }
-    else {
-        if(pos.y > pos.x){
-            newFish.direction = 0;
-            newFish.color = ofVec3f(174,226,57);
-        }
-    }
+  
      fish.push_back(newFish);
 }
 

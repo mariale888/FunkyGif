@@ -21,7 +21,7 @@ class ofApp : public ofBaseApp{
 		void dragEvent(ofDragInfo dragInfo);
 		void gotMessage(ofMessage msg);
 		
-    void addFish(ofVec2f initPos, ofVec3f color);
+    void addFish(ofVec2f initPos, ofVec3f color, int dir);
     int calcPos(int x, int y);
     //circles in back
     int radius;
@@ -37,10 +37,7 @@ class ofApp : public ofBaseApp{
     int initPos;
     vector<MyCircles> fish;
     
-    int timer;
-    float curTimer;
-    
-    vector<ofVec2f> grid_pos;
+   
     vector<int> init_pos;
     vector<int> wayPoints;
     bool isRandom;
