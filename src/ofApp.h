@@ -4,6 +4,8 @@
 #include "MyCircles.h"
 
 
+enum TypeParticle {moveSides, followEdge, multipleSections };
+
 class ofApp : public ofBaseApp{
 
 	public:
@@ -21,8 +23,12 @@ class ofApp : public ofBaseApp{
 		void dragEvent(ofDragInfo dragInfo);
 		void gotMessage(ofMessage msg);
 		
-    void addFish(ofVec2f initPos, ofVec3f color, int dir);
+    void addParticles(bool isInit);
+    void addFish(ofVec2f pos, ofColor color, TypeCircle type_);
     int calcPos(int x, int y);
+    ofColor window_color;
+    ofColor background_color;
+    
     //circles in back
     int radius;
     int num_circles;
@@ -32,17 +38,21 @@ class ofApp : public ofBaseApp{
     vector<int> closed_index;
     bool openTime;
     
-    // fish elements
-    int num_fish;
-    int initPos;
+    // particle elements
+    TypeParticle particleType;
+    vector<ofVec2f>bound_sections;
+    bool randomColor;
+    int num_particles;
+    //int initPos;
     vector<MyCircles> fish;
     
-   
+   // main window shape when open
     vector<int> init_pos;
     vector<int> wayPoints;
     bool isRandom;
     bool isHeart;
     bool isNumasbala;
+    
     
     //image saver
     ofImage grabbed;

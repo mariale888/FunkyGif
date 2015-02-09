@@ -4,14 +4,16 @@
 void ofApp::setup(){
 
     ofSetFrameRate(10);
-    // Smooth edges
     ofEnableSmoothing();
     
     radius      = 35;
     num_circles = 204;
     num_per_row = 17;
     time_open   = 0.5;
+    window_color = ofColor(238, 232, 222);
+    background_color = ofColor(73,72,104);
     
+    //Creating main circle windows
     int j = -1;
     for (int i = 0;i< num_circles;i++)
     {
@@ -21,7 +23,7 @@ void ofApp::setup(){
             j++;
         
         float y = (radius) + (j * radius*1.8) -5;
-        circles.push_back(MyCircles(ofVec3f(x, y, 0), ofVec3f(238,232,222), radius, time_open, ofGetFrameNum())); //ofVec3f(52,56,56)
+        circles.push_back(MyCircles(ofVec3f(x, y, 0), window_color, radius, time_open, ofGetFrameNum(), windowObj)); //ofVec3f(52,56,56)
     }
     
    
@@ -31,6 +33,16 @@ void ofApp::setup(){
     isHeart     = false;
     isNumasbala = true;
     openTime = false;
+    
+    particleType = multipleSections;
+    if(particleType == multipleSections)
+    {
+        // numasbala
+        bound_sections.push_back(ofVec2f(calcPos(8,0), circles.size()-2) ); // bottom
+        bound_sections.push_back(ofVec2f(calcPos(0,7), calcPos(2,12)) );   // top
+        bound_sections.push_back(ofVec2f(calcPos(0,8), calcPos(10,8)) );   // center top bottom
+    }
+    randomColor = false;
     
     //heart shape
     if(isHeart)
@@ -70,19 +82,8 @@ void ofApp::setup(){
     }
     
 
-    // init fish
-    num_fish = 2000;
-    for(int i = 0;i<100;i++){
-       
-        int r = ofRandom(calcPos(8,0), circles.size()-2);
-        addFish(circles[r].pos, ofVec3f(0,223,252),1);
-           }
-    for(int i = 0;i<200;i++){
-        
-       int r = ofRandom(calcPos(0,7), calcPos(2,12));
-        addFish(circles[r].pos, ofVec3f(16,16,15),4);
-    }
-    addFish(circles[calcPos(0,8)].pos, ofVec3f(16,16,15),3);
+    // init particles
+    addParticles(true);
 }
 
 int ofApp::calcPos(int x, int y)
@@ -98,22 +99,17 @@ void ofApp::update(){
     float amplitude = 10;
     float speed     = 10;
     
-    if(ofGetFrameNum()%2 == 0 && fish.size() < num_fish){
-        int r = ofRandom(calcPos(8,0), circles.size()-2);
-        addFish(circles[r].pos, ofVec3f(0,223,252),1);
-        
-        r = ofRandom(calcPos(0,7), calcPos(2,12));
-        addFish(circles[r].pos, ofVec3f(16,16,15),4);
-        
-        addFish(circles[calcPos(0,8)].pos, ofVec3f(16,16,15),3);
+    if(ofGetFrameNum()%2 == 0 && fish.size() < num_particles){
+        addParticles(false);
 
     }
     
     for (int i = 0;i< fish.size();i++)
     {
+        float s = speed;
         ofVec2f p = ofVec2f();
-        if(fish[i].direction == 3){
-            speed = ofRandom(4, 14);
+        if(fish[i].type == followWayP){
+            s = ofRandom(8, 16);
             p = circles[wayPoints[fish[i].curPoint]].pos;
             if(fish[i].arrived)
             {
@@ -122,7 +118,9 @@ void ofApp::update(){
                 p = circles[wayPoints[fish[i].curPoint]].pos;
             }
         }
-        fish[i].updateFish(p,amplitude, period, speed);
+        if(fish[i].type == moveBound)
+            s = speed + 10;
+        fish[i].updateParticles(p,amplitude, period, s);
     }
 
     //update circles that are closing
@@ -192,24 +190,35 @@ void ofApp::update(){
 
 //--------------------------------------------------------------
 void ofApp::draw(){
-    ofBackground(73,72,104);
+    ofBackground(background_color);
     // drawing all my fish
     
     for(int i = 0; i < fish.size();i++) {
         MyCircles temp = fish[i];
-        if(temp.direction == 3 || (temp.direction == 1 && !circles[calcPos(10, 8)].isClose) ||
-           (temp.direction == 4 && !circles[calcPos(0, 8)].isClose) ){
-            ofSetColor(temp.color.x,temp.color.y,temp.color.z);
+        if(particleType == multipleSections)
+        { // 10,8
+            cout<<circles[bound_sections[0].x].isClose<<endl;
+            if(temp.type == followWayP || (temp.type == moveBound && !circles[bound_sections[2].x].isClose) ||
+               (temp.type == moveRight && !circles[bound_sections[2].y].isClose) )  {
+                ofSetColor(temp.color);
+                ofFill();
+                ofCircle(temp.pos.x, temp.pos.y, temp.pos.z, temp.curRadius);
+            }
+        }
+        else
+        {
+            ofSetColor(temp.color);
             ofFill();
             ofCircle(temp.pos.x, temp.pos.y, temp.pos.z, temp.curRadius);
         }
+        
     }
     //for(int i = 12;i<18;i++)
     //circles[i].radius = 1;
     // drawing all my circles
     for(int i = 0; i < circles.size();i++) {
         MyCircles temp = circles[i];
-        ofSetColor(temp.color.x,temp.color.y,temp.color.z);
+        ofSetColor(temp.color);
         ofFill();
         ofCircle(temp.pos.x, temp.pos.y, temp.pos.z, temp.curRadius);
     }
@@ -222,11 +231,61 @@ void ofApp::draw(){
 }
 
 //--------------------------------------------------------------
-void ofApp::addFish(ofVec2f pos, ofVec3f color, int dir) {
+void ofApp::addParticles(bool isInit) {
+    
+    if(particleType == followEdge)
+    {
+        num_particles = 200;
+        //add particles along enge
+        addFish(circles[calcPos(0,8)].pos, ofColor(16,16,15), followWayP);
+    }
+    if(particleType == moveSides)
+    {
+        num_particles = 200;
+        int side_particles = 10;
+        if(!isInit)side_particles = 1;
+        
+        //adding particles that move right left
+        for(int i = 0;i < side_particles; i++){
+            
+            int r = ofRandom(calcPos(8,0), circles.size()-2);
+            addFish(circles[r].pos, ofColor(0,223,252), moveRight);
+        }
+    }
+    if(particleType == multipleSections)
+    {
+        num_particles = 2000;
+        int side_particles = 100;
+        int bound_particles = 200;
+        
+        if(!isInit) {
+            side_particles  = 1;
+            bound_particles = 1;
+        }
+        //adding particles that move right left
+        for(int i = 0;i < side_particles; i++){
+            
+            int r = ofRandom(bound_sections[0].x, bound_sections[0].y);
+            addFish(circles[r].pos, ofColor(0,223,252), moveRight);
+        }
+        for(int i = 0;i < bound_particles;i++){
+            
+            int r = ofRandom(bound_sections[1].x, bound_sections[1].y);
+            addFish(circles[r].pos, ofColor(16,16,15), moveBound);
+        }
+        //add particles along enge
+        addFish(circles[calcPos(0,8)].pos, ofColor(16,16,15), followWayP);
+    }
 
-    MyCircles newFish =  MyCircles(ofVec3f(pos.x, pos.y, 0), color, ofRandom(3, 12), time_open, ofGetFrameNum()) ;
-    newFish.direction = dir;
-    if(newFish.direction == 3){
+    
+}
+
+//--------------------------------------------------------------
+void ofApp::addFish(ofVec2f pos, ofColor color, TypeCircle type_) {
+
+    MyCircles newFish =  MyCircles(ofVec3f(pos.x, pos.y, 0), color, ofRandom(3, 12), time_open, ofGetFrameNum(), type_) ;
+   
+    if(newFish.type == followWayP){
        
         newFish.pos = circles[wayPoints[0]].pos;
     }
