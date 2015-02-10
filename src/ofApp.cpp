@@ -7,11 +7,12 @@ void ofApp::setup(){
     ofEnableSmoothing();
     
     radius      = 35;
-    num_circles = 204;
+    num_circles = 238; //204
     num_per_row = 17;
     time_open   = 0.5;
-    window_color = ofColor(238, 232, 222);
-    background_color = ofColor(73,72,104);
+   window_color = ofColor(249,242,231);//(238, 232, 222);
+    //window_color = ofColor(238, 232, 222);
+    background_color = ofColor(153,178,183);//(73,72,104);
     
     //Creating main circle windows
     int j = -1;
@@ -35,12 +36,34 @@ void ofApp::setup(){
     openTime = false;
     
     particleType = multipleSections;
+    
     if(particleType == multipleSections)
     {
+        multipleS_colors.push_back(ofColor(26,26,25));
+        multipleS_colors.push_back(ofColor(36,36,35));
+        multipleS_colors.push_back(ofColor(46,46,45));
+        
+        //side
+        multipleS_colors.push_back(ofColor(0,223,252));
+        multipleS_colors.push_back(ofColor(0,168,198));
+        multipleS_colors.push_back(ofColor(64,192,203));
+        
         // numasbala
-        bound_sections.push_back(ofVec2f(calcPos(8,0), circles.size()-2) ); // bottom
-        bound_sections.push_back(ofVec2f(calcPos(0,7), calcPos(2,12)) );   // top
-        bound_sections.push_back(ofVec2f(calcPos(0,8), calcPos(10,8)) );   // center top bottom
+        bound_sections.push_back(ofVec2f(calcPos(9,0), circles.size()-2) ); // bottom
+        bound_sections.push_back(ofVec2f(calcPos(1,7), calcPos(3,12)) );   // top
+        bound_sections.push_back(ofVec2f(calcPos(1,8), calcPos(11,8)) );   // center top bottom
+    }
+    if(particleType == moveSides)
+    {
+        moveSides_colors.push_back(ofColor(0,223,252));
+        moveSides_colors.push_back(ofColor(0,168,198));
+        moveSides_colors.push_back(ofColor(64,192,203));
+    }
+    if(particleType == followEdge)
+    {
+        followEdge_colors.push_back(ofColor(6,6,5));
+        followEdge_colors.push_back(ofColor(16,16,15));
+        followEdge_colors.push_back(ofColor(34,33,32));
     }
     randomColor = false;
     
@@ -60,14 +83,14 @@ void ofApp::setup(){
     // numasbala shape
     if(isNumasbala)
     {
-        int t[] = { calcPos(0,8), calcPos(1,8),calcPos(1,9), calcPos(2,9),calcPos(2,10),calcPos(3,8),calcPos(4,8),calcPos(5,3),calcPos(5,4),
-            calcPos(5,5),calcPos(5,6),calcPos(5,7),calcPos(5,8), calcPos(5,9), calcPos(5,10),calcPos(5,11),calcPos(5,12),calcPos(5,13),calcPos(5,14),
-            calcPos(6,3),calcPos(6,13),calcPos(7,4), calcPos(7,12), calcPos(8,5), calcPos(8,11), calcPos(9,6),calcPos(9,10),calcPos(10,7),
-            calcPos(10,8),calcPos(10,9) };
+        int t[] = { calcPos(1,8), calcPos(2,8),calcPos(2,9), calcPos(3,9),calcPos(3,10),calcPos(4,8),calcPos(5,8),calcPos(6,3),calcPos(6,4),
+            calcPos(6,5),calcPos(6,6),calcPos(6,7),calcPos(6,8), calcPos(6,9), calcPos(6,10),calcPos(6,11),calcPos(6,12),calcPos(6,13),calcPos(6,14),
+            calcPos(7,3),calcPos(7,13),calcPos(8,4), calcPos(8,12), calcPos(9,5), calcPos(9,11), calcPos(10,6),calcPos(10,10),calcPos(11,7),
+            calcPos(11,8),calcPos(11,9) };
         
-        wayPoints.push_back( calcPos(0,8)); wayPoints.push_back( calcPos(2,10)); wayPoints.push_back( calcPos(2,9));wayPoints.push_back( calcPos(3,8));
-        wayPoints.push_back( calcPos(5,8));wayPoints.push_back( calcPos(5,13)); wayPoints.push_back( calcPos(6,13));wayPoints.push_back( calcPos(10,9));
-        wayPoints.push_back( calcPos(10,7));wayPoints.push_back( calcPos(6,3)); wayPoints.push_back( calcPos(5,3));wayPoints.push_back( calcPos(5,8));
+        wayPoints.push_back( calcPos(1,8)); wayPoints.push_back( calcPos(3,10)); wayPoints.push_back( calcPos(3,9));wayPoints.push_back( calcPos(4,8));
+        wayPoints.push_back( calcPos(6,8));wayPoints.push_back( calcPos(6,13)); wayPoints.push_back( calcPos(7,13));wayPoints.push_back( calcPos(11,9));
+        wayPoints.push_back( calcPos(11,7));wayPoints.push_back( calcPos(7,3)); wayPoints.push_back( calcPos(6,3));wayPoints.push_back( calcPos(6,8));
         
         for (int i = 0; i < (sizeof(t) / sizeof(int)); ++i) init_pos.push_back(t[i]);
     }
@@ -95,21 +118,21 @@ int ofApp::calcPos(int x, int y)
 //--------------------------------------------------------------
 void ofApp::update(){
     
-    float period    = 10;
-    float amplitude = 10;
-    float speed     = 10;
+    
     
     if(ofGetFrameNum()%2 == 0 && fish.size() < num_particles){
         addParticles(false);
-
     }
     
     for (int i = 0;i< fish.size();i++)
     {
-        float s = speed;
+        float period    =  ofRandom(2, 12);
+        float amplitude = ofRandom(2, 12);
+        float speed     = ofRandom(2, 12);
+        
         ofVec2f p = ofVec2f();
         if(fish[i].type == followWayP){
-            s = ofRandom(8, 16);
+            speed = ofRandom(8, 16);
             p = circles[wayPoints[fish[i].curPoint]].pos;
             if(fish[i].arrived)
             {
@@ -118,9 +141,11 @@ void ofApp::update(){
                 p = circles[wayPoints[fish[i].curPoint]].pos;
             }
         }
-        if(fish[i].type == moveBound)
-            s = speed + 10;
-        fish[i].updateParticles(p,amplitude, period, s);
+        if(fish[i].type == moveRight)
+        {
+            period = 10;
+        }
+        fish[i].updateParticles(p,amplitude, period, speed);
     }
 
     //update circles that are closing
@@ -137,7 +162,7 @@ void ofApp::update(){
     if(ofGetFrameNum()%2 == 0) {
         if(isHeart || isNumasbala)
         {
-            int row = 0;
+            int row = 1; //0
             int add = 0;
             float extraTime = 0;
             for(vector<int>::iterator it = init_pos.begin(); it != init_pos.end();++it){
@@ -237,16 +262,26 @@ void ofApp::addParticles(bool isInit) {
     {
         num_particles = 200;
         //add particles along enge
-        addFish(circles[calcPos(0,8)].pos, ofColor(16,16,15), followWayP);
+        ofColor c = followEdge_colors[ofRandom(followEdge_colors.size())];
+        if(randomColor)
+            c = ofColor(ofRandom(255),ofRandom(255),ofRandom(255));
+        
+        addFish(circles[calcPos(0,8)].pos, c, followWayP);
     }
+    
     if(particleType == moveSides)
     {
         num_particles = 200;
         int side_particles = 10;
         if(!isInit)side_particles = 1;
         
+         ofColor c = moveSides_colors[ofRandom(moveSides_colors.size())];
         //adding particles that move right left
         for(int i = 0;i < side_particles; i++){
+            
+            c = moveSides_colors[ofRandom(moveSides_colors.size())];
+            if(randomColor)
+                c = ofColor(ofRandom(255),ofRandom(255),ofRandom(255));
             
             int r = ofRandom(calcPos(8,0), circles.size()-2);
             addFish(circles[r].pos, ofColor(0,223,252), moveRight);
@@ -256,25 +291,33 @@ void ofApp::addParticles(bool isInit) {
     {
         num_particles = 2000;
         int side_particles = 100;
-        int bound_particles = 200;
+        int bound_particles = 100;
         
         if(!isInit) {
             side_particles  = 1;
             bound_particles = 1;
         }
+        ofColor c = multipleS_colors[ofRandom(0, 2)];
+        if(randomColor)
+            c = ofColor(ofRandom(255),ofRandom(255),ofRandom(255));
+        
         //adding particles that move right left
         for(int i = 0;i < side_particles; i++){
             
+            ofColor c_ = multipleS_colors[ofRandom(3, multipleS_colors.size())];
+            if(randomColor)
+                c_ = ofColor(ofRandom(255),ofRandom(255),ofRandom(255));
             int r = ofRandom(bound_sections[0].x, bound_sections[0].y);
-            addFish(circles[r].pos, ofColor(0,223,252), moveRight);
+            addFish(circles[r].pos, c_, moveRight);
         }
         for(int i = 0;i < bound_particles;i++){
             
+            
             int r = ofRandom(bound_sections[1].x, bound_sections[1].y);
-            addFish(circles[r].pos, ofColor(16,16,15), moveBound);
+            addFish(circles[r].pos, c, moveBound);
         }
         //add particles along enge
-        addFish(circles[calcPos(0,8)].pos, ofColor(16,16,15), followWayP);
+        addFish(circles[calcPos(0,8)].pos, c, followWayP);
     }
 
     

@@ -41,10 +41,17 @@ class ofApp : public ofBaseApp{
     // particle elements
     TypeParticle particleType;
     vector<ofVec2f>bound_sections;
+    //colors
+    vector<ofColor>moveSides_colors;
+    vector<ofColor>followEdge_colors;
+    vector<ofColor>multipleS_colors;
+
     bool randomColor;
     int num_particles;
     //int initPos;
     vector<MyCircles> fish;
+    
+    
     
    // main window shape when open
     vector<int> init_pos;
