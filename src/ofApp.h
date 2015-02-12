@@ -4,8 +4,6 @@
 #include "MyCircles.h"
 
 
-enum TypeParticle {moveSides, followEdge, multipleSections };
-
 class ofApp : public ofBaseApp{
 
 	public:
@@ -37,20 +35,14 @@ class ofApp : public ofBaseApp{
     vector<MyCircles> circles;
     vector<int> closed_index;
     bool openTime;
+    vector<MyCircles> blue_c;
     
-    // particle elements
-    TypeParticle particleType;
-    vector<ofVec2f>bound_sections;
+    
     //colors
     vector<ofColor>moveSides_colors;
     vector<ofColor>followEdge_colors;
     vector<ofColor>multipleS_colors;
 
-    bool randomColor;
-    int num_particles;
-    //int initPos;
-    vector<MyCircles> fish;
-    
     
     
    // main window shape when open
